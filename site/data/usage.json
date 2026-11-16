@@ -32,9 +32,9 @@
     {
       "title": "Duck Bridge Builders",
       "slug": "duck-bridge-builders",
-      "processed_tokens": null,
-      "noncached_output_tokens": null,
-      "complete": false
+      "processed_tokens": 125357022,
+      "noncached_output_tokens": 459329,
+      "complete": true
     },
     {
       "title": "Happy Farm Rush",
@@ -53,9 +53,9 @@
     {
       "title": "Skyline Outlaws: Jet Chase",
       "slug": "skyline-outlaws",
-      "processed_tokens": null,
-      "noncached_output_tokens": null,
-      "complete": false
+      "processed_tokens": 103937301,
+      "noncached_output_tokens": 355201,
+      "complete": true
     },
     {
       "title": "Tiny Town Merge",
