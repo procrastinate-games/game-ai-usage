@@ -1,0 +1,13 @@
+{
+  "org": "procrastinate-games",
+  "discovery": {
+    "manifest_path": "public/game.json",
+    "skip_archived": true,
+    "skip_forks": true,
+    "skip_templates": true,
+    "public_only": true
+  },
+  "exclude": ["game-template", "game-publisher", "pg-website", "game-ai-usage"],
+  "include": [],
+  "overrides": {}
+}

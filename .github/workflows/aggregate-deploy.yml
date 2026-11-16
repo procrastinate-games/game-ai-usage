@@ -1,0 +1,68 @@
+name: Aggregate usage and deploy
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'scripts/**'
+      - 'pricing.json'
+      - 'config/**'
+      - 'agent-kit/**'
+      - 'test/**'
+      - 'wrangler.jsonc'
+      - '.github/workflows/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: aggregate-deploy
+  cancel-in-progress: false
+
+jobs:
+  aggregate-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Test
+        run: npm test
+
+      - name: Aggregate usage data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/aggregate.mjs
+
+      - name: Commit usage.json if changed
+        if: github.ref_name == 'main'
+        run: |
+          if git diff --quiet -- site/data/usage.json && [ -z "$(git ls-files --others --exclude-standard site/data/usage.json)" ]; then
+            echo "usage.json unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/data/usage.json
+          git commit -m "chore(data): refresh usage.json [skip ci]"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Deploy to Cloudflare
+        if: github.ref_name == 'main'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::warning::CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID not set; skipping deploy"
+            exit 0
+          fi
+          npx --yes wrangler@4.162.0 deploy

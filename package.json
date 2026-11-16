@@ -1,0 +1,14 @@
+{
+  "name": "game-ai-usage",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AI usage dashboard for procrastinate-games repositories",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "aggregate": "node scripts/aggregate.mjs",
+    "report": "node agent-kit/report-usage.mjs",
+    "serve": "node scripts/serve.mjs"
+  }
+}

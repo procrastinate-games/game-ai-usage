@@ -1,0 +1,22 @@
+{
+  "schema": "game-ai-usage/report@2",
+  "report_id": "8f38b601-48af-4a8c-9dc5-7d950e3dc50f",
+  "repo": "procrastinate-games/circuit-runner",
+  "date": "2026-11-16",
+  "accuracy": "unknown",
+  "models": [
+    {
+      "provider": "openai",
+      "model": null,
+      "price_tier": null,
+      "calls": null,
+      "input_tokens": null,
+      "output_tokens": null,
+      "reasoning_tokens": null,
+      "cache_read_tokens": null,
+      "cache_write_tokens": null,
+      "cache_write_5m_tokens": null,
+      "cache_write_1h_tokens": null
+    }
+  ]
+}

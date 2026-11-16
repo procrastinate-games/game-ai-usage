@@ -1,0 +1,54 @@
+{
+  "sessionId": "gem12345-aaaa",
+  "startTime": "2026-11-10T09:00:00.000Z",
+  "lastUpdated": "2026-11-10T09:30:00.000Z",
+  "messages": [
+    {
+      "id": "a",
+      "type": "user",
+      "content": "hi"
+    },
+    {
+      "id": "b",
+      "type": "gemini",
+      "model": "gemini-2.5-pro",
+      "timestamp": "2026-11-10T09:10:00.000Z",
+      "tokens": {
+        "input": 1000,
+        "output": 100,
+        "cached": 400,
+        "thoughts": 50,
+        "tool": 20,
+        "total": 1170
+      }
+    },
+    {
+      "id": "b",
+      "type": "gemini",
+      "model": "gemini-2.5-pro",
+      "timestamp": "2026-11-10T09:10:00.000Z",
+      "tokens": {
+        "input": 1000,
+        "output": 100,
+        "cached": 400,
+        "thoughts": 50,
+        "tool": 20,
+        "total": 1170
+      }
+    },
+    {
+      "id": "c",
+      "type": "gemini",
+      "model": "gemini-2.5-pro",
+      "timestamp": "2026-11-10T09:20:00.000Z",
+      "tokens": {
+        "input": 300000,
+        "output": 10,
+        "cached": 0,
+        "thoughts": 0,
+        "tool": 0,
+        "total": 300010
+      }
+    }
+  ]
+}

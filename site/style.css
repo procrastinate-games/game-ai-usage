@@ -1,0 +1,252 @@
+:root {
+  --bg: #161617;      /* page base */
+  --card: #1E1F20;    /* raised one step above the page */
+  --border: #2C2D2E;
+  --text: #BFBFBF;
+  --muted: #4F4F50;
+  --accent: #d97757;
+  --blue: #48A0C7;
+  --green: #74C991;
+  --red: #C74E39;
+  --raised: #2E2F31;  /* hover / raised surfaces — top of the elevation ladder */
+  --selected: #262626;  /* selected chips / tabs (neutral, not accent) */
+  --jump-h: 45px;  /* sticky jump-bar height; JS keeps it in sync for scroll offsets */
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; }
+
+/* VS Code-style scrollbars. The dashboard renders inside a webview iframe,
+   which doesn't inherit VS Code's --vscode-* theme variables, so we set the
+   scrollbar here: no arrows, grey thumb (#28292B, #8B8B8D on hover) over a
+   #121314 track, in a 21px gutter. Also fits the dark UI standalone. */
+* { scrollbar-width: auto; scrollbar-color: #28292B #121314; }
+::-webkit-scrollbar { width: 21px; height: 21px; }
+::-webkit-scrollbar-track { background: #121314; }
+::-webkit-scrollbar-thumb { background-color: #28292B; border: 3px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: #8B8B8D; }
+::-webkit-scrollbar-thumb:active { background-color: #8B8B8D; }
+::-webkit-scrollbar-corner { background: #121314; }
+
+header { background: var(--card); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 18px; font-weight: 600; color: var(--text); }
+header .header-title { display: flex; align-items: center; gap: 10px; }
+/* The icon is a monochrome silhouette (white shape on transparent). We paint
+   it with the title color via a CSS mask + background-color, so it matches
+   `header h1` — the lightest text color. */
+header .header-icon {
+  width: 26px; height: 26px; flex-shrink: 0; display: block;
+  background-color: var(--text);
+  -webkit-mask: url("icon.svg") no-repeat center / contain;
+  mask: url("icon.svg") no-repeat center / contain;
+}
+header .meta { color: var(--muted); font-size: 12px; text-align: right; line-height: 1.5; margin-right: 20px; }
+
+#filter-bar { position: relative; background: var(--card); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.filter-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); white-space: nowrap; }
+.filter-sep { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; }
+/* Model multi-select: a compact trigger in the bar that opens a grouped panel. */
+.model-select { position: relative; flex-shrink: 0; }
+.model-trigger { display: flex; align-items: center; gap: 8px; min-width: 170px; max-width: 320px; padding: 5px 10px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 12px; cursor: pointer; transition: border-color 0.15s; }
+.model-trigger:hover, .model-trigger.open { border-color: var(--accent); }
+.model-trigger-label { flex: 1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.model-caret { color: var(--muted); font-size: 10px; flex-shrink: 0; transition: transform 0.15s; }
+.model-trigger.open .model-caret { transform: rotate(180deg); }
+.model-panel { position: absolute; top: calc(100% + 6px); left: 0; z-index: 50; min-width: 250px; max-width: 340px; max-height: 360px; overflow-y: auto; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+.model-panel[hidden] { display: none; }
+.model-panel-actions { display: flex; gap: 6px; padding-bottom: 8px; margin-bottom: 4px; border-bottom: 1px solid var(--border); }
+.model-group-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); padding: 8px 8px 4px; }
+.model-cb-label { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; color: var(--muted); transition: background 0.12s, color 0.12s; user-select: none; }
+.model-cb-label:hover { background: var(--raised); color: var(--text); }
+.model-cb-label.checked { color: var(--text); }
+.model-cb-label input { display: none; }
+.model-cb-box { width: 15px; height: 15px; flex-shrink: 0; border-radius: 4px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; line-height: 1; color: transparent; transition: background 0.12s, border-color 0.12s; }
+.model-cb-label.checked .model-cb-box { background: var(--accent); border-color: var(--accent); color: #fff; }
+.model-cb-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.filter-btn { padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 11px; cursor: pointer; white-space: nowrap; }
+.filter-btn:hover { border-color: var(--accent); color: var(--text); }
+/* Date range — a compact dropdown. The old segmented button row (8 buttons)
+   wrapped badly in the narrow VS Code panel; a single select stays put. Styled
+   to match the model trigger. */
+.range-select { position: relative; flex-shrink: 0; }
+.range-select select { appearance: none; -webkit-appearance: none; min-width: 150px; padding: 5px 30px 5px 10px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 12px; cursor: pointer; transition: border-color 0.15s; }
+.range-select select:hover, .range-select select:focus { border-color: var(--accent); outline: none; }
+.range-select::after { content: "\25BE"; position: absolute; right: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 10px; pointer-events: none; }
+.range-select option { background: var(--card); color: var(--text); }
+
+.container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.stat-card .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.stat-card .value { font-size: 22px; font-weight: 700; }
+.stat-card .sub { color: var(--muted); font-size: 11px; margin-top: 4px; }
+
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+/* min-width:0 lets the grid column shrink below the canvas's intrinsic
+   pixel width; without it, narrowing the window can't narrow the container,
+   so Chart.js's ResizeObserver never fires until a data refresh rebuilds the
+   canvas. (Expanding already works — 1fr columns grow freely.) */
+.chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; min-width: 0; }
+.chart-card.wide { grid-column: 1 / -1; }
+.chart-card h2 { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
+.chart-wrap { position: relative; height: 240px; }
+.chart-wrap.tall { height: 300px; }
+.chart-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.chart-header h2 { margin-bottom: 0; }
+.chart-header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.chart-day-count { font-size: 11px; color: var(--muted); }
+
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 8px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+th.sortable { cursor: pointer; user-select: none; }
+th.sortable:hover { color: var(--text); }
+.sort-icon { font-size: 9px; opacity: 0.8; }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--raised); }
+.model-tag { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; background: rgba(72,160,199,0.15); color: var(--blue); }
+.cost { color: var(--green); font-family: monospace; }
+.cost-na { color: var(--muted); font-family: monospace; font-size: 11px; }
+.num { font-family: monospace; }
+.muted { color: var(--muted); }
+.topic-cell { box-sizing: border-box; min-width: 160px; max-width: 260px; overflow-wrap: anywhere; font-size: 12px; color: var(--text); }
+.untitled { color: var(--muted); font-style: italic; }
+.section-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.section-header .section-title { margin-bottom: 0; }
+.export-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
+.export-btn:hover { color: var(--text); border-color: var(--accent); }
+.table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 24px; overflow-x: auto; }
+.table-foot { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 12px; }
+.table-foot:empty { margin-top: 0; }
+.show-more-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+.show-more-btn:hover { color: var(--text); border-color: var(--accent); }
+.show-more-link { color: var(--blue); text-decoration: none; font-size: 12px; cursor: pointer; }
+.show-more-link:hover { text-decoration: underline; }
+
+footer { border-top: 1px solid var(--border); padding: 20px 24px; margin-top: 8px; }
+.footer-content { max-width: 1400px; margin: 0 auto; }
+.footer-content p { color: var(--muted); font-size: 12px; line-height: 1.7; margin-bottom: 4px; }
+.footer-content p:last-child { margin-bottom: 0; }
+.footer-content a { color: var(--blue); text-decoration: none; }
+.footer-content a:hover { text-decoration: underline; }
+
+/* Jump bar — a sticky table-of-contents for a long report. Styled as a sibling
+   of the filter bar (same card surface + bottom border) so it reads as part of
+   the same control strip. It pins to the viewport top once the header/filter
+   scroll away. z-index sits below the model panel (50) so the dropdown still
+   overlays it. */
+/* Sticky table-of-contents for the long report: three compact entries —
+   Overview, plus Graphs and Tables menus that reveal their sections on hover
+   (or keyboard focus). Stays small so it never crowds the narrow VS Code panel. */
+#jump-bar { position: sticky; top: 0; z-index: 20; background: var(--card); border-bottom: 1px solid var(--border); padding: 7px 24px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+.jump-menu { position: relative; }
+.jump-trigger { display: inline-flex; align-items: center; gap: 6px; padding: 3px 11px; border-radius: 6px; border: 1px solid transparent; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; transition: background 0.12s, color 0.12s, border-color 0.12s; }
+.jump-trigger svg { display: block; }
+.jump-caret { font-size: 9px; }
+.jump-trigger:hover, .jump-menu:focus-within .jump-trigger { color: var(--text); background: var(--raised); }
+.jump-trigger.active { color: var(--text); border-color: var(--border); }
+.jump-panel { position: absolute; top: calc(100% + 5px); left: 0; z-index: 50; min-width: 160px; display: none; flex-direction: column; gap: 2px; padding: 6px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+/* Invisible bridge over the 5px gap so the menu doesn't close as the pointer
+   travels from the trigger down to the panel. */
+.jump-panel::before { content: ""; position: absolute; left: 0; right: 0; top: -8px; height: 8px; }
+.jump-menu-end .jump-panel { left: auto; right: 0; }
+.jump-menu:hover .jump-panel, .jump-menu:focus-within .jump-panel { display: flex; }
+.jump-link { padding: 3px 11px; border-radius: 6px; border: 1px solid transparent; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; white-space: nowrap; transition: background 0.12s, color 0.12s, border-color 0.12s; }
+.jump-panel .jump-link { display: block; width: 100%; text-align: left; padding: 5px 10px; }
+.jump-link:hover { color: var(--text); background: var(--raised); }
+.jump-link.active { color: var(--text); background: var(--selected); border-color: var(--border); font-weight: 600; }
+/* Inline info affordance (e.g. the dispatches table) — native title tooltip. */
+.info-icon { display: inline-flex; align-items: center; vertical-align: middle; margin-left: 3px; color: var(--muted); cursor: help; }
+.info-icon svg { display: block; }
+.info-icon:hover { color: var(--text); }
+/* Anchored sections clear the sticky bar when jumped/collapsed to. */
+.stats-row, .chart-card, .table-card { scroll-margin-top: calc(var(--jump-h) + 14px); }
+
+/* Collapsible cards — a full section fold, independent of in-table Show
+   more/less (which only pages rows). Collapsing hides the card body and its
+   header controls, leaving just the caret + title. State persists per card in
+   localStorage. */
+.card-caret { display: inline-block; width: 0.9em; margin-right: 7px; font-size: 14px; line-height: 1; color: inherit; transform: rotate(90deg); transition: transform 0.15s; }
+.collapsed .card-caret { transform: rotate(0deg); }
+.chart-card > h2, .chart-header > h2, .section-title { cursor: pointer; user-select: none; }
+.chart-card > h2:hover, .chart-header > h2:hover, .section-title:hover { color: var(--text); }
+.jump-link:focus-visible, .jump-trigger:focus-visible, .info-icon:focus-visible, .chart-card > h2:focus-visible, .chart-header > h2:focus-visible, .section-title:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chart-card.collapsed > h2, .chart-card.collapsed > .chart-header { margin-bottom: 0; }
+.table-card.collapsed > .section-title, .table-card.collapsed > .section-header { margin-bottom: 0; }
+.chart-card.collapsed > *:not(h2):not(.chart-header),
+.chart-card.collapsed .chart-header > *:not(h2),
+.table-card.collapsed > *:not(.section-title):not(.section-header),
+.table-card.collapsed .section-header > *:not(.section-title) { display: none; }
+
+
+/* ── Game AI Usage additions ───────────────────────────────────────────── */
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.range-dates { display: inline-flex; align-items: center; gap: 6px; }
+.range-dates[hidden] { display: none; }
+.range-dates input, .filter-select select { padding: 4px 8px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 12px; color-scheme: dark; }
+.range-dates input:focus { border-color: var(--accent); outline: none; }
+.filter-group { display: flex; align-items: center; gap: 8px; }
+.filter-group[hidden] { display: none; }
+.stat-card .value.inc, .inc { text-decoration: underline dotted var(--muted); text-underline-offset: 3px; }
+.inc-mark { color: var(--amber, #D9A84E); margin-right: 2px; }
+.stat-card .value { overflow-wrap: anywhere; }
+.chip { display: inline-block; padding: 1px 7px; margin: 0 4px 2px 0; border-radius: 10px; font-size: 11px; background: rgba(155,126,199,0.15); color: #B79FDA; white-space: nowrap; }
+.chip.claude-code { background: rgba(217,119,87,0.16); color: #E0907A; }
+.chip.codex, .chip.codex-cloud { background: rgba(116,201,145,0.15); color: var(--green); }
+.chip.gemini-cli { background: rgba(72,160,199,0.15); color: var(--blue); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
+.badge.ok { background: rgba(116,201,145,0.15); color: var(--green); }
+.badge.warn { background: rgba(217,168,78,0.16); color: #D9A84E; }
+.badge.bad { background: rgba(199,78,57,0.16); color: #E07662; }
+.badge.none { background: var(--raised); color: #8A8A8B; }
+tr.dim td { opacity: 0.55; }
+tr.dim td .badge, tr.dim td a { opacity: 1; }
+td.game-cell { font-weight: 600; white-space: nowrap; }
+td.num, th.num-h { white-space: nowrap; }
+td.date-cell { white-space: nowrap; }
+.notice { background: rgba(217,168,78,0.08); border: 1px solid rgba(217,168,78,0.35); border-radius: 8px; padding: 12px 16px; margin-bottom: 24px; font-size: 13px; line-height: 1.6; }
+.notice[hidden] { display: none; }
+.notice ul { margin: 4px 0 0 18px; }
+.notice details { margin-top: 4px; }
+.notice summary { cursor: pointer; color: var(--blue); }
+.notice .warn-path { font-family: monospace; font-size: 12px; color: var(--muted); }
+.game-head { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; }
+.game-head[hidden] { display: none; }
+.game-head h2 { font-size: 20px; margin: 6px 0 8px; color: var(--text); }
+.game-head .gh-links { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin-bottom: 8px; }
+.game-head .gh-meta { color: var(--muted); font-size: 12px; }
+.back-link { font-size: 13px; }
+.chart-sub { color: var(--muted); font-size: 11px; margin: -8px 0 12px; text-transform: none; letter-spacing: 0; font-weight: 400; }
+.chart-card.collapsed .chart-sub { display: none; }
+.muted-note { color: var(--muted); font-size: 12px; padding: 16px 0; text-align: center; }
+.th-info { text-transform: none; }
+body.detail [data-view="overview"] { display: none !important; }
+body:not(.detail) [data-view="detail"] { display: none !important; }
+.jump-link[hidden] { display: none; }
+.topic-cell { min-width: 180px; }
+footer .footer-content p a { word-break: break-word; }
+
+@media (max-width: 768px) {
+  .charts-grid { grid-template-columns: 1fr; }
+  .chart-card.wide { grid-column: 1; }
+}
+@media (max-width: 600px) {
+  header, #filter-bar, #jump-bar, footer { padding-left: 16px; padding-right: 16px; }
+  header { flex-wrap: wrap; gap: 6px; }
+  header .meta { margin-right: 0; text-align: left; }
+  .container { padding: 16px; }
+  .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card { padding: 12px; }
+  .stat-card .value { font-size: 18px; }
+  .chart-card, .table-card { padding: 14px; }
+  .filter-sep { display: none; }
+  .filter-group { flex-wrap: wrap; }
+  #filter-bar .model-select { position: static; }
+  #filter-bar .model-panel { left: 16px; right: 16px; max-width: none; }
+  .model-trigger { min-width: 150px; }
+}
+
+/* Privacy-minimal per-game comparison, preserving the upstream dark palette */
+.gamebar {display:grid;grid-template-columns:minmax(150px,220px) minmax(90px,1fr) 120px;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.gamebar:last-child {border-bottom:0}.gamebar-name{overflow-wrap:anywhere}.gamebar-track{height:12px;border-radius:6px;background:var(--raised);overflow:hidden}.gamebar-fill{height:100%;background:var(--accent);border-radius:6px}.gamebar-value{text-align:right;font:12px monospace}.privacy-note{color:var(--muted);font-size:12px}.num{text-align:right;white-space:nowrap}th:not(:first-child){text-align:right}@media(max-width:650px){.gamebar{grid-template-columns:1fr 90px;gap:6px}.gamebar-track{grid-column:1/-1;grid-row:2}.gamebar-value{grid-column:2;grid-row:1}.container{padding:14px}.table-card{padding:12px}header{padding:14px}}

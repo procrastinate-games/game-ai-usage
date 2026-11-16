@@ -1,0 +1,75 @@
+{
+  "schema": "game-ai-usage/usage@2",
+  "games": [
+    {
+      "title": "Adventurer’s Shop",
+      "slug": "adventurers-shop",
+      "processed_tokens": null,
+      "noncached_output_tokens": null,
+      "complete": false
+    },
+    {
+      "title": "Bee Rush",
+      "slug": "bee-rush",
+      "processed_tokens": null,
+      "noncached_output_tokens": null,
+      "complete": false
+    },
+    {
+      "title": "Blades & Banners: Two Fronts",
+      "slug": "blades-and-banners-two-fronts",
+      "processed_tokens": null,
+      "noncached_output_tokens": null,
+      "complete": false
+    },
+    {
+      "title": "Circuit Runner",
+      "slug": "circuit-runner",
+      "processed_tokens": 63149982,
+      "noncached_output_tokens": 211369,
+      "complete": true
+    },
+    {
+      "title": "Duck Bridge Builders",
+      "slug": "duck-bridge-builders",
+      "processed_tokens": null,
+      "noncached_output_tokens": null,
+      "complete": false
+    },
+    {
+      "title": "Happy Farm Rush",
+      "slug": "happy-farm-rush",
+      "processed_tokens": null,
+      "noncached_output_tokens": null,
+      "complete": false
+    },
+    {
+      "title": "Runes & Ruins",
+      "slug": "runes-and-ruines",
+      "processed_tokens": null,
+      "noncached_output_tokens": null,
+      "complete": false
+    },
+    {
+      "title": "Skyline Outlaws: Jet Chase",
+      "slug": "skyline-outlaws",
+      "processed_tokens": null,
+      "noncached_output_tokens": null,
+      "complete": false
+    },
+    {
+      "title": "Tiny Town Merge",
+      "slug": "tiny-town-merge",
+      "processed_tokens": null,
+      "noncached_output_tokens": null,
+      "complete": false
+    },
+    {
+      "title": "Voxel Frontier",
+      "slug": "voxel-frontier",
+      "processed_tokens": null,
+      "noncached_output_tokens": null,
+      "complete": false
+    }
+  ]
+}
